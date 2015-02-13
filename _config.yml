@@ -7,7 +7,7 @@ baseurl:     ""
 url:         "http://alenpuzic.com"
 
 # Google analytics
-google_analytics:
+google_analytics: UA-51689808-1
 
 # Optional features
 animated:           false
