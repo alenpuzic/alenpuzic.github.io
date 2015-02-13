@@ -1,10 +1,10 @@
 # Site settings
-title:       Pixyll
-email:       your_email@example.com
-author:      John Otander
+title:       AlenPuzic.com
+email:       alen.puzic@gmail.com
+author:      Alen Puzic
 description: "A simple, beautiful theme for Jekyll that emphasizes content rather than aesthetic fluff."
 baseurl:     ""
-url:         "http://pixyll.com"
+url:         "http://alenpuzic.com"
 
 # Google analytics
 google_analytics:
@@ -16,15 +16,15 @@ show_post_footers:  false
 
 # Disqus post comments
 # (leave blank to disable Disqus)
-disqus_shortname:
+disqus_shortname: alenpuzic
 
 # Social icons
 show_social_icons: false
-github_username:
+github_username: alenpuzic
 stackoverflow_id:
-twitter_username:
+twitter_username: alenpuzic
 google_plus_id:
-linkedin_username:
+linkedin_username: alenpuzic
 bitcoin_url:
 paypal_url:
 flattr_button:
