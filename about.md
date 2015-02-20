@@ -1,19 +1,19 @@
 ---
 layout: page
-title: About Pixyll
+title: About
 permalink: /about/
 ---
 
-This Jekyll theme was crafted with <3 by [John Otander](http://johnotander.com)
-([@4lpine](https://twitter.com/4lpine)).
+I'm a serial entrepreneur, software engineer and a security geek. I currently live in Austin, TX, USA with my amazing wife 
+<a href='http://laurapuzic.com'>Laura</a> and our two mischievous dogs.
 
-Checkout the [Github repository](https://github.com/johnotander/pixyll) to download it,
-request a feature, report a bug, or contribute. It's free, and open source
-([MIT](http://opensource.org/licenses/MIT)).
+My passions lie in software architecture, cybersecurity and product development. In particular, 
+I really enjoy working on projects relating to security, scalability, automation and data analytics. 
+I love designing beautiful products, from inception stages all the way to public release. My belief is that great 
+products are difficult to design not because they are complex, but because they are incredibly simple.
 
-Thanks to the following:
+I've been a funder of numerous startups in the past decade. My last company, 
+  <a href='https://www.pwnedlist.com'>PwnedList</a>, was acquired in 2013. 
 
-* [BASSCSS](http://basscss.com)
-* [Jekyll](http://jekyllrb.com)
-* [Refills](http://refills.bourbon.io/)
-* [Solarized](http://ethanschoonover.com/solarized)
+I enjoy watching the World Cup. I love hiking, backpacking and pretty much anything that provides me with an escape
+from technology. I love reading both fiction and non-fiction. My favorite pastime is hanging out with my family. 

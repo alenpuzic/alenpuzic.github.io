@@ -2,7 +2,7 @@
 title:       Alen Puzic
 email:       alen.puzic@gmail.com
 author:      Alen Puzic
-description: "A simple, beautiful theme for Jekyll that emphasizes content rather than aesthetic fluff."
+description: "Alen Puzic's personal blog. Thoughts and ramblings on technology, cybersecurity and life."
 baseurl:     ""
 url:         "http://alenpuzic.com"
 
@@ -12,7 +12,7 @@ google_analytics: UA-51689808-1
 # Optional features
 animated:           false
 show_related_posts: false
-show_post_footers:  false
+show_post_footers:  true
 
 # Disqus post comments
 # (leave blank to disable Disqus)
