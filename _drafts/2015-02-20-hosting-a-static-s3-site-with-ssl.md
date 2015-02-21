@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      Serving A Site On S3 With SSL
+title:      Hosting A Static S3 Site With SSL
 date:       2015-02-20 18:00:00
 summary:    How to host a static site on S3 and CloudFront with SSL support. 
 categories: jekyll pixyll
