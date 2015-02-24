@@ -8,21 +8,20 @@ categories: cloud scalability
 <!-- 3c2e30ed531f1b7bb8582131791ef67dc8f0edd6 -->
 
 Static sites are cool. They are generally faster, less resource intensive and avoid platform lock-in. Not to mention
-they're a heck of a lot more secure than their dynamic counterparts. For a more in depth look at the pros and cons of
-static sites you can read my post on [Benefits of Static Sites]({% post_url 2014-06-08-pixyll-has-pagination %}).
+they're a heck of a lot more secure than their dynamic counterparts. 
  
-The purpose of this article is to guide you in hosting your site on AWS <ins>with SSL support</ins>, which is something I feel is 
-imperative. In today's world encryption should be a necessity and not just a nice-to-have. For a 
-personal site you can purchase a decent SSL certificate for as little as $5 a year, from the likes of 
+The purpose of this article is to guide you in setting up your static site on AWS <ins>with SSL support</ins>, which is 
+something I feel is imperative. In today's world encryption should be a necessity and not just a nice-to-have. For a 
+personal site you can purchase a decent SSL certificate for under $10 a year, from companies like 
 [NameCheap](https://www.namecheap.com). Even better - soon , summer of 2015, you'll be able to get a free certificate
 from the folks at [Let's Encrypt](https://letsencrypt.org). Let's get started.
 
 ### Overview
 
-In this tutorial we're going to learn how to use various AWS cloud services to serve a static site that is (almost) 
+In this tutorial we're going to learn how to use various AWS cloud services to serve a static site that is (practically) 
 infinitely scalable, very budget friendly and served over SSL/TLS. In particular, we'll use S3 cloud storage to host
-our static site files, CloudFront content delivery network to distribute our content over SSL and finally Route53 DNS 
-service to host our custom domain from AWS. 
+our static site files, CloudFront content delivery network to distribute our content over SSL and finally Route53 
+to point DNS requests to CloudFront.   
  
 There's a couple of things we should understand before we start. CloudFront allows you to use an AWS provided SSL
 certificate instead of using your own certificate, but it costs a whopping $600 a month to use this premium service.
@@ -37,14 +36,13 @@ name when following the procedures outlined below._
 ### Create S3 buckets
 
 
-To set up your static site with a custom domain on Amazon's S3 you need to create at least 2 buckets, one
-for your apex domain (example.com) and another for the www subdomain (www.example.com). We're also going to create a 3rd
-optional bucket (logs.example.com) to store CloudFront access logs, which we'll setup at a later stage of this tutorial.
+To host your site on Amazon's S3 you need to create at least 2 buckets, one for your apex domain (example.com) and 
+another for the www subdomain (www.example.com). We're also going to create a 3rd optional bucket (logs.example.com) 
+to store CloudFront access logs, which we'll setup at a later stage of this tutorial.
 
 _It's worth noting that bucket names
 in S3 are universal, so if another AWS user has a bucket 'example.com' then you won't be able to create a bucket with
-that name. If that happens don't worry. The bucket names that host your static site do not have to
-match your domain name._
+that name. If that happens don't worry. The bucket names you'll create do not have to match your domain name._
 
 We need to create 3 buckets for our hosting setup:
 
@@ -52,7 +50,8 @@ We need to create 3 buckets for our hosting setup:
   * www.example.com
   * logs.example.com
 
-Log into your AWS Console, proceed to the S3 Management Console and create the above listed buckets.
+Log into your AWS Console, proceed to the S3 Management Console and create the above listed buckets, like in the 
+example shown bellow. You can set the Region option to whatever you prefer, or just leave it at the default setting. 
 
 ![Create S3 Bucket](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_001.png)
 
@@ -94,28 +93,9 @@ screenshot below.
 
 ![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_004.png)
 
-Now we're finished setting up our S3 buckets! Bucket 'example.com' will contain all our static site files and all 
-requests to 'www.example.com' will get redirected to 'example.com' bucket by S3. We don't have to do anything with our
-'logs.example.com' bucket, yet. We'll configure access logs using CloudFront at the end of this article. 
-
-### Configure Route53
-
-In order to point our custom domain name to our hosted static files we'll need to setup Amazon's DNS 
-service, Route53. From the AWS Console go to Route53 Management Console and click the button that says
-'Create Hosted Zone'. We're going to create a new zone for our custom domain example.com.
-
-![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_005.png)
-
-Once your zone is created you'll be shown a screen with 'Hosted Zone Details' as in the example shown below.
-
-![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_006.png)
-
-Now go into your newly created hosted zone to view the record sets. You'll find that Route53 created 2 DNS records for
-you, NS and SOA. The NS record specified the name servers for your domain. Make a note of the values in the NS record,
-as we're going to use those later on to point our domain registrar to Route53's nameservers. The SOA record is used to specify 
-authoritative information about your hosted zone. We're going to need to create two new records (A and CNAME records)
-but before we do that we must set up CloudFront to serve our website through it's content delivery network. We'll come
-back to Route53 later.
+Now we're finished setting up our S3 buckets! You can now upload your static site files to the example.com bucket.
+S3 will redirect all requests from www.example.com to example.com bucket. We don't have to do anything with our
+'logs.example.com' bucket, yet. We'll configure access logs using CloudFront at the end of this article.
 
 ### Obtain a SSL certificate
 
@@ -208,7 +188,7 @@ our S3 buckets and the SSL certificate.
 Now we need to go to the 'CloudFront Management Console' and create a new distribution. Make sure to select 'Web' as
 the delivery method. 
 
-![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_007.png)
+![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_005.png)
 
 Here's a list of the applicable configuration options and the values you should set. There are a lot of other options
 not listed in the list below - you can leave those at their default values. 
@@ -237,17 +217,32 @@ This step just congfired logs.example.com S3 bucket to serve as storage for site
 CloudFront will save access logs into the given bucket. This is a great scalable way of keeping a backup of all your
 access logs and I highly recommend it.
 
-### Point Route53 to CloudFront
+### Configure Route53
 
-The last piece of the AWS puzzle is to configure your Route53 hosted zone to point to the CloudFront distribution you
-just created. Go back into Route53 and go into your hosted zone. As mentioned earlier we're going to need to add
-two more DNS records in order to host your static site. 
+In order to point our custom domain name to our hosted static files we'll need to setup Amazon's DNS 
+service, Route53. From the AWS Console go to Route53 Management Console and click the button that says
+'Create Hosted Zone'. We're going to create a new zone for our custom domain example.com.
 
-First we're going to add a new A record that will point example.com to CloudFront:
+![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_006.png)
 
-![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_009.png)
+Once your zone is created you'll be shown a screen with 'Hosted Zone Details' as in the example shown below.
 
-Next we're going to add a CNAME record type:
+![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_007.png)
+
+Now go into your newly created hosted zone to view the record sets. You'll find that Route53 created 2 DNS records for
+you, NS and SOA. The NS record specified the name servers for your domain. Make a note of the values in the NS record,
+as we're going to use those later on to point our domain registrar to Route53's nameservers. The SOA record is used to specify 
+authoritative information about your hosted zone. Now we need to add 2 more records to your hosted zone so point
+web requests to your site's CloudFront distribution. 
+
+Go into your hosted zone. First we're going to add a new A record that will point example.com to CloudFront. 
+Create a new record of type A, set Alias to Yes and point Alias Target to the matching CloudFront distribution. 
+You can leave all other options as default.
+
+![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_008.png)
+
+Next we're going to add a CNAME record type. Create a new record of type CNAME, make sure the name is prefixed with 
+'www', set Alias to No and value to 'example.com'.
 
 ![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_009.png)
 
@@ -255,7 +250,7 @@ And that's it! AWS is now fully configured to host your static site with your cu
 
 ### Point Your Domain to Route53
 
-Now you have to make your changes public by pointing your domain name to use Route53's nameservers. This can be done
+Finally, you have to make your changes public by pointing your domain name to use Route53's nameservers. This can be done
 through your domain name registrar. 
 
 Here's links to instructions on how to do this on common registars:
