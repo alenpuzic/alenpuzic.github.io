@@ -9,7 +9,8 @@ categories: cloud hosting
 
 Static sites are cool. They are generally faster, less resource intensive and avoid platform lock-in. Not to mention
 they're a heck of a lot more secure than their dynamic counterparts. For a more in depth look at the pros and cons of
-statically generated websites you can read my post on TODO.
+statically generated websites you can read my post on 
+[Resurgence of Static Sites]({% post_url 2015-02-20-resurgence-of-static-websites %}).
  
 The purpose of this article is to guide you in setting up your static site on AWS <ins>with SSL support</ins>, which is 
 something I feel is imperative in today's world. Encryption should be a necessity and not just a nice-to-have. For a 
