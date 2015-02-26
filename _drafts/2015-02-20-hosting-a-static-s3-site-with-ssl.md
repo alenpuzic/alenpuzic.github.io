@@ -1,9 +1,9 @@
 ---
 layout:     post
 title:      Hosting A Static S3 Site With SSL
-date:       2015-02-20 18:00:00
+date:       2015-02-24 18:00:00
 summary:    How to host a static site on S3 and CloudFront with SSL support. 
-categories: cloud scalability
+categories: cloud hosting
 ---
 <!-- 3c2e30ed531f1b7bb8582131791ef67dc8f0edd6 -->
 
@@ -11,7 +11,7 @@ Static sites are cool. They are generally faster, less resource intensive and av
 they're a heck of a lot more secure than their dynamic counterparts. 
  
 The purpose of this article is to guide you in setting up your static site on AWS <ins>with SSL support</ins>, which is 
-something I feel is imperative. In today's world encryption should be a necessity and not just a nice-to-have. For a 
+something I feel is imperative in today's world. Encryption should be a necessity and not just a nice-to-have. For a 
 personal site you can purchase a decent SSL certificate for under $10 a year, from companies like 
 [NameCheap](https://www.namecheap.com). Even better - soon , summer of 2015, you'll be able to get a free certificate
 from the folks at [Let's Encrypt](https://letsencrypt.org). Let's get started.
@@ -35,14 +35,13 @@ name when following the procedures outlined below._
 
 ### Create S3 buckets
 
-
 To host your site on Amazon's S3 you need to create at least 2 buckets, one for your apex domain (example.com) and 
 another for the www subdomain (www.example.com). We're also going to create a 3rd optional bucket (logs.example.com) 
 to store CloudFront access logs, which we'll setup at a later stage of this tutorial.
 
-_It's worth noting that bucket names
-in S3 are universal, so if another AWS user has a bucket 'example.com' then you won't be able to create a bucket with
-that name. If that happens don't worry. The bucket names you'll create do not have to match your domain name._
+_It's worth noting that bucket names in S3 are universal, so if another AWS user has a bucket 'example.com' 
+then you won't be able to create a bucket with that name. If that happens don't worry. The bucket names you'll 
+create do not have to match your domain name._
 
 We need to create 3 buckets for our hosting setup:
 
@@ -59,7 +58,7 @@ example shown bellow. You can set the Region option to whatever you prefer, or j
 
 Next we have to configure our newly created buckets. Let's start with the apex domain bucket, example.com. This is the
 bucket that will store all of our static site files. First we enable site hosting from the 'Static Website Hosting' 
- section of the properties tab. 
+section of the properties tab. 
 
 ![Enable S3 Bucket Static Site Hosting](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_002.png)
 
@@ -107,7 +106,7 @@ You'll need to pick a certificate authority (CA) to purchase your SSL certificat
 affordable CAs out there. [GoDaddy](https://www.godaddy.com) and [NameCheap](https://www.namecheap.com) both offer
 dirt cheap certificates that are good enough for personal sites. Once you purchase a certificate from a CA you'll be
 asked to provide your CSR, so that the certificate can be signed properly. The command prompt example below
-illustrates how to create a certificate signing request on a Linux box running Ubuntu OS. 
+illustrates how to create a certificate signing request using OpenSSL: 
  
 {% highlight bash %}
 $ openssl req -nodes -newkey rsa:4096 -keyout example.key -out example.csr
@@ -138,7 +137,7 @@ An optional company name []:YourCompany LLC
 {% endhighlight %}
 
 _The example above creates a 4096bit key for added security. However, some certificate authorities might ask you to
-use a 2048bit key instead. You can replace 'rsa:4096' with 'rsa:2048' above to lower the requested key size._
+use a 2048bit key instead. You can replace 'rsa:4096' with 'rsa:2048' above to lower the decrease key size._
  
 This creates two files for you, example.key or your private key, and example.csr which is your CSR. You'll upload
 the contents of example.csr to your certificate authority (CA) and they'll provide you certificate files. Keep your 
@@ -156,7 +155,7 @@ This creates a new key file, example_pem.key, which is formatted properly for AW
 ### Upload your SSL certificate to IAM
 
 _This section assumes you have AWS command line interface installed on your machine. At the time of this writing this
-was the only way to upload certificates to AWS._
+was the only way to upload certificates to AWS/IAM._
 
 There are 3 files required for uploading a SSL certificate to AWS:
   
@@ -213,7 +212,7 @@ not listed in the list below - you can leave those at their default values.
 
 Allow roughly 15 minutes for the changes to propagate through CloudFront edge locations.
 
-This step just congfired logs.example.com S3 bucket to serve as storage for site access logs. Roughly every hour
+This step just configured logs.example.com bucket to serve as storage for site access logs. Roughly every hour
 CloudFront will save access logs into the given bucket. This is a great scalable way of keeping a backup of all your
 access logs and I highly recommend it.
 
@@ -250,11 +249,14 @@ And that's it! AWS is now fully configured to host your static site with your cu
 
 ### Point Your Domain to Route53
 
-Finally, you have to make your changes public by pointing your domain name to use Route53's nameservers. This can be done
-through your domain name registrar. 
-
-Here's links to instructions on how to do this on common registars:
+Finally, all you have left to do is point your domain name to Route53 nameservers. This can be done
+through your domain name registrar. Here's links to instructions for some commonly used registrars:
 
   * [GoDaddy] (https://support.godaddy.com/help/article/12317/setting-custom-nameservers-for-domains-registered-with-us)
   * [NameCheap] (https://www.namecheap.com/support/knowledgebase/article.aspx/767/10/how-can-i-change-the-nameservers-for-my-domain)
   * [1and1] (https://help.1and1.com/domains-c36931/manage-domains-c79822/dns-c37586/use-your-own-name-server-for-a-1and1-domain-a594904.html)
+  
+### Done
+
+You're done! You should now have a static site with your files hosted on S3, your content distributed along CloudFront
+edge nodes and content served securely via SSL. 
