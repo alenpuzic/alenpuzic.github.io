@@ -8,7 +8,8 @@ categories: cloud hosting
 <!-- 3c2e30ed531f1b7bb8582131791ef67dc8f0edd6 -->
 
 Static sites are cool. They are generally faster, less resource intensive and avoid platform lock-in. Not to mention
-they're a heck of a lot more secure than their dynamic counterparts. 
+they're a heck of a lot more secure than their dynamic counterparts. For a more in depth look at the pros and cons of
+statically generated websites you can read my post on TODO.
  
 The purpose of this article is to guide you in setting up your static site on AWS <ins>with SSL support</ins>, which is 
 something I feel is imperative in today's world. Encryption should be a necessity and not just a nice-to-have. For a 
@@ -18,15 +19,16 @@ from the folks at [Let's Encrypt](https://letsencrypt.org). Let's get started.
 
 ### Overview
 
-In this tutorial we're going to learn how to use various AWS cloud services to serve a static site that is (practically) 
+In this tutorial we're going to learn how to use Amazon Web Services (AWS) to serve a static site that is (practically) 
 infinitely scalable, very budget friendly and served over SSL/TLS. In particular, we'll use S3 cloud storage to host
-our static site files, CloudFront content delivery network to distribute our content over SSL and finally Route53 
-to point DNS requests to CloudFront.   
+our static files, CloudFront content delivery network to distribute our content over SSL and finally Route53 
+to point DNS requests to CloudFront.
  
-There's a couple of things we should understand before we start. CloudFront allows you to use an AWS provided SSL
-certificate instead of using your own certificate, but it costs a whopping $600 a month to use this premium service.
-That makes it a non-option for most people. Also, CloudFront is not required to serve your custom domain site from S3,
-but it is required if you want to use SSL. 
+There's a couple of things we should note before we start. You don't have to use your own custom SSL certificate. 
+CloudFront actually allows you to use an AWS provided SSL certificate instead, but it costs a whopping $600 a month 
+to use this premium service. That makes it a non-option for most people. Also, CloudFront is not required to serve 
+a static site from AWS. You can host your site with just S3 and Route53. But using CloudFront allows us to use SSL
+and it gives us faster load times. 
 
 _This rest of this article assumes that you already have an active AWS account. It also assumes that you have 
 registered a domain name and have already generated static files necessary for your site. From this point on we're going
@@ -43,21 +45,21 @@ _It's worth noting that bucket names in S3 are universal, so if another AWS user
 then you won't be able to create a bucket with that name. If that happens don't worry. The bucket names you'll 
 create do not have to match your domain name._
 
-We need to create 3 buckets for our hosting setup:
+We'll create 3 buckets for our hosting setup:
 
   * example.com 
   * www.example.com
   * logs.example.com
 
-Log into your AWS Console, proceed to the S3 Management Console and create the above listed buckets, like in the 
-example shown bellow. You can set the Region option to whatever you prefer, or just leave it at the default setting. 
+Log into your AWS Console, proceed to the _S3 Management Console_ and create the above listed buckets, as in the example
+shown below. You can set the Region option to whatever you prefer, or just leave it at the default setting. 
 
 ![Create S3 Bucket](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_001.png)
 
 ### Configure S3 buckets
 
 Next we have to configure our newly created buckets. Let's start with the apex domain bucket, example.com. This is the
-bucket that will store all of our static site files. First we enable site hosting from the 'Static Website Hosting' 
+bucket that will store all of our static site files. First we will enable site hosting from the 'Static Website Hosting' 
 section of the properties tab. 
 
 ![Enable S3 Bucket Static Site Hosting](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_002.png)
@@ -86,15 +88,15 @@ Here's the policy in plaintext so you can copy it. Make sure to replace example.
 {% endhighlight %}
 
 Now the only thing left to do is modify our www.example.com bucket to redirect all requests to our example.com 
-bucket. Once again we go to the 'Static Website Hosting' section of the bucket properties tab but this time we pick the
-'Redirect all requests to another host name' option and set the value to 'example.com', as shown in the example 
+bucket. Select the properties tab of your www.example.com bucket and go to the 'Static Website Hosting' section. 
+Pick 'Redirect all requests to another host name' option and set the value to 'example.com', as shown in the example 
 screenshot below.
 
 ![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_004.png)
 
 Now we're finished setting up our S3 buckets! You can now upload your static site files to the example.com bucket.
-S3 will redirect all requests from www.example.com to example.com bucket. We don't have to do anything with our
-'logs.example.com' bucket, yet. We'll configure access logs using CloudFront at the end of this article.
+We don't have to do anything with the logs.example.com bucket, yet. We'll configure access logs using CloudFront 
+a bit later.
 
 ### Obtain a SSL certificate
 
@@ -104,7 +106,7 @@ keep reading._
 
 You'll need to pick a certificate authority (CA) to purchase your SSL certificate from. There's a wide range of decent,
 affordable CAs out there. [GoDaddy](https://www.godaddy.com) and [NameCheap](https://www.namecheap.com) both offer
-dirt cheap certificates that are good enough for personal sites. Once you purchase a certificate from a CA you'll be
+dirt cheap certificates that are good enough for personal use. Once you purchase a certificate from a CA you'll be
 asked to provide your CSR, so that the certificate can be signed properly. The command prompt example below
 illustrates how to create a certificate signing request using OpenSSL: 
  
@@ -136,15 +138,16 @@ A challenge password []:
 An optional company name []:YourCompany LLC
 {% endhighlight %}
 
-_The example above creates a 4096bit key for added security. However, some certificate authorities might ask you to
-use a 2048bit key instead. You can replace 'rsa:4096' with 'rsa:2048' above to lower the decrease key size._
+_The example above creates a 4096bit key. However, some certificate authorities might ask you to
+use a 2048bit key instead. You can replace 'rsa:4096' with 'rsa:2048' above to decrease key size._
  
-This creates two files for you, example.key or your private key, and example.csr which is your CSR. You'll upload
+This creates two files for you, example.key which is your private key, and example.csr which is your CSR. You'll upload
 the contents of example.csr to your certificate authority (CA) and they'll provide you certificate files. Keep your 
 private key in a safe place and don't share it with anybody!
 
 There's one last thing we need to take care of. The private key that was generated in the step above is not in PEM 
-format, which is required by CloudFront. We need to convert the key into PEM.
+format, which is required by AWS. We need to convert the key into PEM. We can use the OpenSSL utility to do just
+that.
 
 {% highlight bash %}
 $ openssl rsa -in example.key -outform PEM -out example_pem.key
@@ -154,8 +157,9 @@ This creates a new key file, example_pem.key, which is formatted properly for AW
 
 ### Upload your SSL certificate to IAM
 
-_This section assumes you have AWS command line interface installed on your machine. At the time of this writing this
-was the only way to upload certificates to AWS/IAM._
+_This section assumes you have AWS command line tools installed on your machine. At the time of this writing this
+was the only way to upload certificates to AWS/IAM. You can get directions on how to install and setup AWS CLI from 
+[here](http://aws.amazon.com/cli/)._
 
 There are 3 files required for uploading a SSL certificate to AWS:
   
@@ -179,18 +183,18 @@ $ aws iam upload-server-certificate --server-certificate-name ExampleComSSLCert 
 }
 {% endhighlight %}
 
-We've now created a copy of our SSL certificate and stored it in AWS IAM. Now we can proceed to setup CloudFront with
+We've now created a copy of our SSL certificate and stored it in AWS IAM. Now we can setup CloudFront with 
 our S3 buckets and the SSL certificate.
 
 ### Create a CloudFront distribution
 
-Now we need to go to the 'CloudFront Management Console' and create a new distribution. Make sure to select 'Web' as
+Go to the _CloudFront Management Console_ and create a new distribution. Make sure to select 'Web' as
 the delivery method. 
 
 ![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_005.png)
 
 Here's a list of the applicable configuration options and the values you should set. There are a lot of other options
-not listed in the list below - you can leave those at their default values. 
+not shown in the list below - you can leave those at their default values. 
 
   * Origin Domain Name: _example.com.s3.amazonaws.com_
   * Viewer Protocol Policy: _Redirect HTTP to HTTPS_
@@ -212,27 +216,23 @@ not listed in the list below - you can leave those at their default values.
 
 Allow roughly 15 minutes for the changes to propagate through CloudFront edge locations.
 
-This step just configured logs.example.com bucket to serve as storage for site access logs. Roughly every hour
-CloudFront will save access logs into the given bucket. This is a great scalable way of keeping a backup of all your
-access logs and I highly recommend it.
+This step also just configured logs.example.com bucket to serve as storage for your site access logs. 
+Roughly every hour CloudFront will save access logs into the given bucket. This is a great and scalable way of keeping 
+a backup of all your access logs and I highly recommend it.
 
 ### Configure Route53
 
 In order to point our custom domain name to our hosted static files we'll need to setup Amazon's DNS 
-service, Route53. From the AWS Console go to Route53 Management Console and click the button that says
+service, Route53. From the AWS Console go to _Route53 Management Console_ and click the button that says
 'Create Hosted Zone'. We're going to create a new zone for our custom domain example.com.
 
 ![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_006.png)
 
-Once your zone is created you'll be shown a screen with 'Hosted Zone Details' as in the example shown below.
-
-![Redirect S3 Requests](/images/3c2e30ed531f1b7bb8582131791ef67dc8f0edd6_007.png)
-
 Now go into your newly created hosted zone to view the record sets. You'll find that Route53 created 2 DNS records for
-you, NS and SOA. The NS record specified the name servers for your domain. Make a note of the values in the NS record,
-as we're going to use those later on to point our domain registrar to Route53's nameservers. The SOA record is used to specify 
-authoritative information about your hosted zone. Now we need to add 2 more records to your hosted zone so point
-web requests to your site's CloudFront distribution. 
+you: NS and SOA. The NS record specified the name servers for your domain. Make a note of the values in the NS record,
+as we're going to use those later on to point our domain registrar to Route53's nameservers. The SOA record is 
+used to specify authoritative information about your hosted zone. Now we need to add 2 more records to your 
+hosted zone so web requests point to your CloudFront distribution. 
 
 Go into your hosted zone. First we're going to add a new A record that will point example.com to CloudFront. 
 Create a new record of type A, set Alias to Yes and point Alias Target to the matching CloudFront distribution. 
