@@ -4,7 +4,7 @@ email:       alen.puzic@gmail.com
 author:      Alen Puzic
 description: "Alen Puzic's personal blog. Thoughts and ramblings on technology, cybersecurity and life."
 baseurl:     ""
-url:         "http://alenpuzic.com"
+url:         "https://alenpuzic.com"
 
 # Google analytics
 google_analytics: UA-51689808-1
