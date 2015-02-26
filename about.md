@@ -17,3 +17,6 @@ I've been a funder of numerous startups in the past decade. My last company,
 
 I enjoy watching the World Cup. I love hiking, backpacking and pretty much anything that provides me with an escape
 from technology. I love reading both fiction and non-fiction. My favorite pastime is hanging out with my family. 
+
+_Opinions expressed here are my own and do not necessarily represent views or attitudes of my employer(s) or 
+their clients._
